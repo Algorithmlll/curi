@@ -9,57 +9,31 @@ export interface RouterProps {
   children: CuriRenderFn;
 }
 
-interface RouterState {
-  emitted: Emitted;
-}
+export default function curiProvider(router: CuriRouter) {
+  return function Router(props: RouterProps) {
+    const { response, navigation } = router.current();
+    const [state, setState] = React.useState<Emitted>({
+      router,
+      response,
+      navigation
+    });
 
-export default function curiProvider(
-  router: CuriRouter
-): React.ComponentType<RouterProps> {
-  return class Router extends React.Component<RouterProps, RouterState> {
-    stopResponding: () => void;
-    removed: boolean;
-
-    constructor(props: RouterProps) {
-      super(props);
-      this.state = {
-        emitted: {
-          ...router.current(),
-          router
-        }
-      };
-    }
-
-    componentDidMount() {
-      this.setupRespond(router);
-    }
-
-    setupRespond(router: CuriRouter) {
-      this.stopResponding = router.observe(
+    React.useLayoutEffect(() => {
+      let removed = false;
+      const stopResponding = router.observe(
         (emitted: Emitted) => {
-          if (!this.removed) {
-            this.setState({ emitted });
+          if (!removed) {
+            setState(emitted);
           }
         },
         { initial: false }
       );
-    }
+      return () => {
+        removed = true;
+        stopResponding();
+      };
+    }, []);
 
-    componentWillUnmount() {
-      this.removed = true;
-      /* istanbul ignore else */
-      if (this.stopResponding) {
-        this.stopResponding();
-      }
-    }
-
-    render() {
-      const { children } = this.props;
-      return (
-        <Provider value={this.state.emitted}>
-          {children(this.state.emitted)}
-        </Provider>
-      );
-    }
+    return <Provider value={state}>{props.children(state)}</Provider>;
   };
 }
