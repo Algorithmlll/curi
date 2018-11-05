@@ -10,13 +10,17 @@ export interface RouterProps {
 }
 
 export default function curiProvider(router: CuriRouter) {
-  return function Router(props: RouterProps) {
+  function initialState() {
     const { response, navigation } = router.current();
-    const [state, setState] = React.useState<Emitted>({
+    return {
       router,
       response,
       navigation
-    });
+    };
+  }
+
+  return function Router(props: RouterProps) {
+    const [state, setState] = React.useState<Emitted>(initialState);
 
     React.useLayoutEffect(() => {
       let removed = false;
