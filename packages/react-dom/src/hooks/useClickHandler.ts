@@ -7,13 +7,10 @@ import { LinkProps } from "../HookLink";
 export default function useClickHandler(
   router: CuriRouter,
   props: LinkProps,
-  setNavigating: (n: boolean) => void
+  setNavigating: (n: boolean) => void,
+  mounted: React.RefObject<boolean>
 ) {
-  let removed = false;
-  function unmounted() {
-    removed = true;
-  }
-  function click(event: React.MouseEvent<HTMLElement>) {
+  return function click(event: React.MouseEvent<HTMLElement>) {
     if (props.onClick) {
       props.onClick(event);
     }
@@ -26,7 +23,7 @@ export default function useClickHandler(
       if (typeof props.children === "function") {
         // how to detect when the containing component has unmounted?
         cancelled = finished = () => {
-          if (!removed) {
+          if (mounted.current) {
             setNavigating(false);
           }
         };
@@ -42,6 +39,5 @@ export default function useClickHandler(
         finished
       });
     }
-  }
-  return { click, unmounted };
+  };
 }

@@ -21,9 +21,14 @@ export default React.forwardRef((props: LinkProps, ref: React.Ref<any>) => {
   const { router } = useCuri();
   const [navigating, setNavigating] = React.useState(false);
   const href = useHref(router, props);
-  const { click, unmounted } = useClickHandler(router, props, setNavigating);
+  const mounted = React.useRef(true);
+  const click = useClickHandler(router, props, setNavigating, mounted);
   React.useEffect(() => {
-    return unmounted;
+    // @ts-ignore
+    return () => {
+      // @ts-ignore
+      mounted.current = false;
+    };
   }, []);
 
   const { anchor: Anchor = "a", children, forward } = props;
