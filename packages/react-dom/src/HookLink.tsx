@@ -5,9 +5,8 @@ import useClickHandler from "./hooks/useClickHandler";
 
 export type NavigatingChildren = (navigating: boolean) => React.ReactNode;
 
-export interface LinkProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  to?: string;
+export interface LinkProps {
+  name?: string;
   params?: object;
   hash?: string;
   query?: any;
@@ -15,6 +14,7 @@ export interface LinkProps
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   anchor?: React.ReactType;
   children: NavigatingChildren | React.ReactNode;
+  forward: React.AnchorHTMLAttributes<HTMLAnchorElement>;
 }
 
 export default React.forwardRef((props: LinkProps, ref: React.Ref<any>) => {
@@ -26,23 +26,13 @@ export default React.forwardRef((props: LinkProps, ref: React.Ref<any>) => {
     return unmounted;
   }, []);
 
-  const {
-    to,
-    params,
-    hash,
-    query,
-    state,
-    onClick,
-    anchor: Anchor = "a",
-    children,
-    ...rest
-  } = props;
+  const { anchor: Anchor = "a", children, forward } = props;
 
   return (
-    <Anchor onClick={click} href={href} ref={ref} {...rest}>
-      {typeof props.children === "function"
-        ? (props.children as NavigatingChildren)(navigating)
-        : props.children}
+    <Anchor onClick={click} href={href} ref={ref} {...forward}>
+      {typeof children === "function"
+        ? (children as NavigatingChildren)(navigating)
+        : children}
     </Anchor>
   );
 });

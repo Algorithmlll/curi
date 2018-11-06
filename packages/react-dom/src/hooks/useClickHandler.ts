@@ -14,14 +14,13 @@ export default function useClickHandler(
     removed = true;
   }
   function click(event: React.MouseEvent<HTMLElement>) {
-    const { onClick, target } = props;
-    if (onClick) {
-      onClick(event);
+    if (props.onClick) {
+      props.onClick(event);
     }
 
-    if (canNavigate(event) && !target) {
+    if (canNavigate(event, props.forward)) {
       event.preventDefault();
-      const { to: name, params, query, state, hash } = props;
+
       let cancelled, finished;
       // only trigger re-renders when children uses state
       if (typeof props.children === "function") {
@@ -34,11 +33,11 @@ export default function useClickHandler(
         setNavigating(true);
       }
       router.navigate({
-        name,
-        params,
-        query,
-        state,
-        hash,
+        name: props.name,
+        params: props.params,
+        query: props.query,
+        state: props.state,
+        hash: props.hash,
         cancelled,
         finished
       });

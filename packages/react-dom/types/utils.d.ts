@@ -1,2 +1,2 @@
-/// <reference types="react" />
-export declare function canNavigate(event: React.MouseEvent<HTMLElement>): boolean;
+import { MouseEvent, AnchorHTMLAttributes } from "react";
+export declare function canNavigate(event: MouseEvent<HTMLElement>, forward: AnchorHTMLAttributes<HTMLAnchorElement>): boolean;
